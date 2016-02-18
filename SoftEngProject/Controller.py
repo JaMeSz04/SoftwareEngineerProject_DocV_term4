@@ -1,74 +1,80 @@
 __author__ = 'Patipon'
-from ServerGUI import*
-from NewServer import*
+
+
+from output import*
+from Server_Family import*
+from PySide.QtGui import*
+from tabChat import*
 from JavaCompile import*
-from Queue import Queue
-import threading
-import os
 
-class Controller:
+
+
+class Controller(QtGui.QMainWindow):
+
     def __init__(self):
-        app = QtGui.QApplication(sys.argv)
-        self.server = Server()
-        self.compileQueue = Queue()
+        super(Controller,self).__init__()
+        self.ui = Ui_MainWindow()
+        self.ui.setupUi(self)
+        self.serverMsg = ServerMsg("161.246.94.168", 3616)
+        self.serverFile = ServerFile("161.246.94.168", 3617)
         self.javaCompiler = JavaComplie()
-        self.server.start()
-        self.createServerGUI()
-        threading.Thread(target = self.checkNotify).start()
-        threading.Thread(target = self.queueHandler).start()
-        threading.Thread(target = self.checkIncoming).start()
-        sys.exit(app.exec_())
-
-    def createServerGUI(self):
-        self.serverGUI = ServerGUI()
-        self.serverGUI.show()
-        self.serverUI = self.serverGUI.getUI()
-
-    def checkNotify(self):
-        while True:
-            for i in self.server.threadingList:
-                if i.getNotify():
-                    if (i.getFileType() == "file"):
-                        compileFile = i.getDataFile()
-                        self.compileQueue.enqueue(compileFile)
-                        i.setNotify(False)
-
-                    elif (i.getFileType() == "msg"):
-                        msg = i.getMsg()
-                        i.setNotify(False)
-
-    def checkIncoming(self):
-        while True:
-            if self.server.getIncoming():
-                conn = self.server.getConn()
-                item = QListWidgetItem(str(conn[1]))
-                self.serverUI.OnlineList.addItem(item)
-                self.server.setIncoming(False)
+        self.serverMsg.usernameTrigger.connect(self.newConnectionHandler)
+        self.serverMsg.newMsg.connect(self.newMsgHandler)
+        self.serverFile.newFile.connect(self.newFileHandler)
 
 
-
-    def queueHandler(self):
-        while True:
-            if self.compileQueue.isEmpty():
-                continue
-            else:
-                file = self.compileQueue.dequeue()
-                if file.rfind(".java") != -1:
-                    self.javaCompiler.setFileDirectory(file)
-                    output = self.javaCompiler.compileJav()
-                elif file.rfind(".py") != -1:
-                    print("SHUBU PYTHON")
+    def newConnectionHandler(self, username):
+        print("hello world")
+        self.ui.OnlineList.addItem(QListWidgetItem(username))
+        self.ui.tabWidget.addTab(TabChat(username),username)
 
 
+    def newMsgHandler(self, msg):
+        print("New msg received : " + msg)
+        self.tabList = self.serverMsg.getUsernameList()
+        name = ""
+        check = 0
+        newData = ""
+        for i in msg:
+            if i == ">":
+                check = 0
+            if check == 1:
+                name += i
+            if check == 0:
+                newData += i
+            if i == "<":
+                check = 1
+
+        print(name)
+        newData = newData [3:]
+        print("tabList  :" + str(self.tabList))
+        for i in range(len(self.tabList)):
+            print(self.tabList[i])
+            print(name)
+            if self.tabList[i] == name:
+                widget = self.ui.tabWidget.widget(i)
+                print("Widget : " + str(widget))
+                widget.update(newData)
+                print("updated")
+
+
+    def newFileHandler(self, filename):
+        name = filename
+        print("New file received : " + name)
+        self.javaCompiler.setFileDirectory(name)
+        print("output from file "  + str(self.javaCompiler.compileJav()))
+        #aow output pai check nai checker tor
 
 
 
 
+if __name__ == "__main__":
+    app = QtGui.QApplication(sys.argv)
+    a = Controller()
 
 
 
-Controller()
-
-
+    a.show()
+    sys.exit(app.exec_())
 
 

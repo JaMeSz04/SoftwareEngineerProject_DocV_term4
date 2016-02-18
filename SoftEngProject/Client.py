@@ -11,7 +11,9 @@ class Client:
 
     def start(self):
         self.s = socket.socket()
+        self.sf = socket.socket()
         self.s.connect((self.ipAddr,self.port))
+        self.sf.connect((self.ipAddr, self.port+1))
         #self.setFilename()
         self.sendUserName()
         self.sendBugData()
@@ -29,41 +31,46 @@ class Client:
         self.s.send(name)
 
     def sendFile(self):
-        self.lunchInitData()
+        
         print("Start send data process")
         with open(self.filename, "rb") as f:
             print("sending")
             data = f.read(1024)
-            self.s.send(data)
+            self.sf.send(data)
             while data:
                 print("sending")
                 data = f.read(1024)
-            self.s.shutdown(socket.SHUT_WR)
+            self.sf.shutdown(socket.SHUT_WR)
 
 
     def setFilename(self, type):
-        self.filename = "testYOYO.txt"
+        self.filename = "ReadDatastructureFinal.java"
         self.type = type
 
     def sendUserName(self):
         name = self.name.encode("utf-8")
         self.s.send(name)
+        self.sf.send(name)
 
     def lunchInitData(self):
-        data = "[1]:QuestionOne," + self.filename + "," + self.type + "," + str(os.path.getsize(self.filename))
+        data = "[1]:QuestionOne," + self.filename.split(".")[0] + "," + self.type + "," + str(os.path.getsize(self.filename))
         data = data.encode("utf-8")
-        self.s.send(data)
+        self.sf.send(data)
 
     def sendMessage(self, msg):
         msg = "[2]:" + "<" + self.name + "> "  + msg
         msg = msg.encode("utf-8")
         self.s.send(msg)
         print("message sent : " + str(msg))
+        
     def shubu(self):
+        hehe = "starting"
+        hehe = hehe.encode("utf-8")
+        self.sf.send(hehe)
         self.setFilename("java")
         self.lunchInitData()
         self.sendFile()
 
-a = Client("127.0.0.1", 3616,"SHUBU")
+a = Client("127.0.0.1", 3616,"ShubU")
 a.start()
 

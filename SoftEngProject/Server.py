@@ -2,14 +2,17 @@ __author__ = 'Patipon'
 
 import socket
 import threading
+from PySide.QtCore import *
 
 
 class Server:
     def __init__(self, ipAddr, port):
+
         self.ipAddr = ipAddr
         self.port = port
         self.connectionList = []
         self.threadingList = []
+
 
     def start(self):
         self.s = socket.socket()
@@ -65,10 +68,6 @@ class ClientHandler(threading.Thread):
             totalRecv += len(data)
             file.write(data)
             print(str(totalRecv/float(self.firstData[1])) + "% done")
-
-    def getName(self):
-        name = self.s.recv(1024)
-        name = name.decode("utf-8")
 
 
     def getFirstData(self):
