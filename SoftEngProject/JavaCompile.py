@@ -20,24 +20,40 @@ class JavaComplie:
     def compileJav(self):
         print("Java file named " + self.dir)
         self.dir = "\"" + self.dir + "\""
+
+
+        #"javac filename"
         print(subprocess.call([self.javac,self.dir]))
+
+
         classjav,ext = os.path.splitext(self.dir)
         className = self.dir[0:self.dir.rfind(".java")]
         print("check dir = " + self.dir)
         print("class name is " + self.dir.split(".java")[0][1:])
         print("compiled")
         cmd = [self.java,self.dir.split(".java")[0][1:]]
+
+
         outputStatus =  subprocess.Popen(cmd,stdout = subprocess.PIPE,stdin = subprocess.PIPE)
+        # "java filename"
+
+
         word = "hehe"
         word = word.encode("utf-8")
         print(outputStatus.poll())
+
+        #yud input parn python
+        #word = input dat we want
         output = outputStatus.communicate(word)
+        #output = output
+
         #get output
 
 
         print(outputStatus)
         print(outputStatus.poll())
         return output
+
 
                 
                 

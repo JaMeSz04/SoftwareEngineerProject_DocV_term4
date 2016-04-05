@@ -5,23 +5,31 @@ import sys
 
 class PythonCompile:
     def __init__(self):
-        self.javac = "C:\\Program Files\\Java\\jdk1.8.0_60\\bin\\javac"
-        self.java = "C:\\Program Files\\Java\\jdk1.8.0_60\\bin\\java"
-        self.python = "C:\\python35\\python"
+        self.python = "C:\\python34\\python"
+        self.dir = None
 
-    def compileJav(self):
+    def setPyDir(self, dir):
+        self.python = dir
+
+    def setFileDir(self, dir):
+        self.dir = dir
+
+    def compilePy(self):
         #getAllJavaFileIn .Py directory
         allFile = os.listdir('.')
         for fn in allFile:
-            if fn.rfind("JavaCompile.py") != -1:
+            if fn.rfind(self.dir) != -1:
                 print("Found a java file named " + fn)
                 cmd = [self.python, fn]
                 outputStatus = subprocess.Popen(cmd, stdout = subprocess.PIPE,stdin = subprocess.PIPE )
                 output = outputStatus.communicate()
                 print(output)
-                stringout = output(2)
-                stringout = stringout.decode("utf-8")
-                print(stringout)
+                listoutput = list(output)
+                print(listoutput)
+                returnoutput = listoutput[0].decode("utf-8")
+                return returnoutput
+
+
             else:
                 print("File not found")
 

@@ -121,7 +121,12 @@ class ClientHandlerMsg(QThread):
             print("Emitted")
 
     def sendMsg(self,msg):
-        data = msg
+        data = "{#SimMsg}: " + msg
+        data = data.encode("utf-8")
+        self.s.send(data)
+
+    def sendSysMsg(self, msg):
+        data = "{#SysMsg}: " + msg
         data = data.encode("utf-8")
         self.s.send(data)
 
@@ -162,8 +167,13 @@ class ClientHandlerFile(QThread):
             self.w8ingState = False
 
     def getFile(self):
-        file = open("recvFile\\" + self.firstData[1] + ".java" , "wb")
-        print("check open file " + self.firstData[1] + ".java")
+        filename = ""
+        if (self.firstData[2] == "Python"):
+            filename = "recvFileTest.py"
+        elif (self.firstData[2] == "Java"):
+            filename = "recvFileTest.java"
+        file = open(filename , "wb")
+
         data = self.s.recv(1024)
         totalRecv = len(data)
         file.write(data)
@@ -174,10 +184,10 @@ class ClientHandlerFile(QThread):
             data = self.s.recv(1024)
             totalRecv += len(data)
             file.write(data)
-            print(str(totalRecv/float(self.firstData[1])) + "% done")
+            print(str(totalRecv/float(self.firstData[3])) + "% done")
 
         file.close()
-        self.newFile.emit(str(self.firstData[1]) + ".java")
+        self.newFile.emit(str(filename))
         print("yoyo get file laww")
 
     def getFirstData(self):
